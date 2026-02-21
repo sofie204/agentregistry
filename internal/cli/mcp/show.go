@@ -1,6 +1,7 @@
 package mcp
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -67,22 +68,17 @@ func runShow(cmd *cobra.Command, args []string) error {
 
 	// Handle JSON output format
 	if showOutputFormat == "json" {
+		var out any
 		if len(servers) == 1 {
-			// Single server - output as object
-			fmt.Println(servers[0])
+			out = servers[0]
 		} else {
-			// Multiple servers - output as array
-			fmt.Println("[")
-			for i, server := range servers {
-				fmt.Print(server)
-				if i < len(servers)-1 {
-					fmt.Println(",")
-				} else {
-					fmt.Println()
-				}
-			}
-			fmt.Println("]")
+			out = servers
 		}
+		data, err := json.MarshalIndent(out, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to marshal JSON: %w", err)
+		}
+		fmt.Println(string(data))
 		return nil
 	}
 
